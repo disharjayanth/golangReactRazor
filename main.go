@@ -57,7 +57,7 @@ func paymentHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	server := http.Server{
-		Addr: os.Getenv("PORT"),
+		Addr: ":" + os.Getenv("PORT"),
 	}
 
 	http.Handle("/", http.FileServer(http.Dir("client/build/")))
