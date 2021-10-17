@@ -41,6 +41,7 @@ function UserDetails() {
 
   return (
     <div className="flex items-center justify-center flex-col mt-20">
+      redirectURL{redirectURL}
       <div className="shadow appearance-none border rounded w-15 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
         <Link to="/cart">Back</Link>
       </div>

@@ -28,7 +28,6 @@ func paymentHandler(w http.ResponseWriter, r *http.Request) {
 	b := make([]byte, 5)
 	if _, err := rand.Read(b); err != nil {
 		panic(err)
-		return
 	}
 	s := fmt.Sprintf("%X", b)
 	// fmt.Println(s)
