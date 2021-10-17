@@ -22,9 +22,11 @@ function UserDetails() {
         amount: 60000,
       })
       const data = await res.data
-      console.log('response:', data)
-      setRedirectURL(data)
-      setIsRedirect(true)
+      if (data !== '') {
+        console.log('response:', data)
+        setRedirectURL(data)
+        setIsRedirect(true)
+      }
     } catch (error) {
       console.log('Erorr;', error)
     }
