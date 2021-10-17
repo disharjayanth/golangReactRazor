@@ -21,8 +21,8 @@ function UserDetails() {
         phone: phone,
         amount: 60000,
       })
-      let data = await res.data
-      if (data) {
+      const data = await res.data
+      if (data !== '') {
         console.log('response:', data)
         setRedirectURL(data)
         setIsRedirect(true)
