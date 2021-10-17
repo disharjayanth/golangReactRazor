@@ -21,7 +21,7 @@ function UserDetails() {
         phone: phone,
         amount: 60000,
       })
-      const data = await res.data
+      let data = await res.data
       if (data !== '') {
         console.log('response:', data)
         setRedirectURL(data)
@@ -34,6 +34,7 @@ function UserDetails() {
 
   useEffect(() => {
     if (isRedirect === true) {
+      console.log(redirectURL)
       window.location.href = redirectURL
     }
   }, [redirectURL, isRedirect])
