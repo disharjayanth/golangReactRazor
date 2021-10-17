@@ -1,12 +1,11 @@
 package main
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/joho/godotenv"
 	"github.com/razorpay/razorpay-go"
@@ -24,14 +23,19 @@ func paymentHandler(w http.ResponseWriter, r *http.Request) {
 		Amount int    `json:"amount"`
 	}
 	json.NewDecoder(r.Body).Decode(&requestData)
-	fmt.Println(requestData)
 
-	fmt.Println(os.Getenv("RAZOR_PUBLIC_KEY"), os.Getenv("RAZOR_SECRET_KEY"))
 	client := razorpay.NewClient(os.Getenv("RAZOR_PUBLIC_KEY"), os.Getenv("RAZOR_SECRET_KEY"))
+	b := make([]byte, 5)
+	if _, err := rand.Read(b); err != nil {
+		panic(err)
+		return
+	}
+	s := fmt.Sprintf("%X", b)
+	// fmt.Println(s)
 	paymentLinkData := map[string]interface{}{
 		"amount":       requestData.Amount,
 		"currency":     "INR",
-		"reference_id": strconv.Itoa(rand.Intn(1000000000)),
+		"reference_id": s,
 		"description":  "Practing golang with razor pay",
 		"customer": map[string]interface{}{
 			"name":    requestData.Name,
@@ -56,8 +60,15 @@ func paymentHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	server := http.Server{
-		Addr: ":" + os.Getenv("PORT"),
+	server := http.Server{}
+	if os.Getenv("ENV") == "DEV" {
+		server = http.Server{
+			Addr: "localhost:4000",
+		}
+	} else {
+		server = http.Server{
+			Addr: ":" + os.Getenv("PORT"),
+		}
 	}
 
 	http.Handle("/", http.FileServer(http.Dir("client/build/")))
