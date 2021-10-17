@@ -22,7 +22,8 @@ function UserDetails() {
         amount: 60000,
       })
       const data = await res.data
-      if (data !== '') {
+      console.log('data', data)
+      if (data) {
         console.log('response:', data)
         setRedirectURL(data)
         setIsRedirect(true)
