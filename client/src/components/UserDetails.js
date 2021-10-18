@@ -6,8 +6,8 @@ function UserDetails() {
   const [name, setName] = useState('dishu')
   const [phone, setPhone] = useState('+918660436070')
   const [email, setEmail] = useState('dishuj15@gmail.com')
-  // const [redirectURL, setRedirectURL] = useState('')
-  // const [isRedirect, setIsRedirect] = useState(false)
+  const [redirectURL, setRedirectURL] = useState('')
+  const [isRedirect, setIsRedirect] = useState(false)
 
   const formHandler = async (e) => {
     e.preventDefault()
@@ -15,35 +15,29 @@ function UserDetails() {
     console.log(name, phone, email)
 
     try {
-      console.log('1')
       const res = await axios.post('/api/payment', {
         name: name,
         email: email,
         phone: phone,
         amount: 60000,
       })
-      console.log('2')
-      console.log(res)
       const data = await res.data
-      console.log('3')
       console.log('data', data)
       if (data) {
         console.log('response:', data)
-        window.location.href = 'https://www.google.com'
-        // setRedirectURL(data)
-        // setIsRedirect(true)
+        setRedirectURL(data)
+        setIsRedirect(true)
       }
     } catch (error) {
       console.log('Erorr;', error)
     }
   }
 
-  // useEffect(() => {
-  //   if (isRedirect === true && redirectURL !== '') {
-  //     console.log(redirectURL)
-  // window.location.href = redirectURL
-  //   }
-  // }, [redirectURL, isRedirect])
+  useEffect(() => {
+    if (isRedirect === true && redirectURL !== '') {
+      window.location.href = redirectURL
+    }
+  }, [redirectURL, isRedirect])
 
   return (
     <div className="flex items-center justify-center flex-col mt-20">
