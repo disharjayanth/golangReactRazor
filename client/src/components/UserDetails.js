@@ -34,7 +34,7 @@ function UserDetails() {
   }
 
   useEffect(() => {
-    if (isRedirect === true) {
+    if (isRedirect === true && redirectURL !== '') {
       console.log(redirectURL)
       window.location.href = redirectURL
     }
