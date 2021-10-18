@@ -6,8 +6,8 @@ function UserDetails() {
   const [name, setName] = useState('dishu')
   const [phone, setPhone] = useState('+918660436070')
   const [email, setEmail] = useState('dishuj15@gmail.com')
-  const [redirectURL, setRedirectURL] = useState('')
-  const [isRedirect, setIsRedirect] = useState(false)
+  // const [redirectURL, setRedirectURL] = useState('')
+  // const [isRedirect, setIsRedirect] = useState(false)
 
   const formHandler = async (e) => {
     e.preventDefault()
@@ -25,24 +25,24 @@ function UserDetails() {
       console.log('data', data)
       if (data) {
         console.log('response:', data)
-        setRedirectURL(data)
-        setIsRedirect(true)
+        window.location.href = data
+        // setRedirectURL(data)
+        // setIsRedirect(true)
       }
     } catch (error) {
       console.log('Erorr;', error)
     }
   }
 
-  useEffect(() => {
-    if (isRedirect === true && redirectURL !== '') {
-      console.log(redirectURL)
-      window.location.href = redirectURL
-    }
-  }, [redirectURL, isRedirect])
+  // useEffect(() => {
+  //   if (isRedirect === true && redirectURL !== '') {
+  //     console.log(redirectURL)
+  // window.location.href = redirectURL
+  //   }
+  // }, [redirectURL, isRedirect])
 
   return (
     <div className="flex items-center justify-center flex-col mt-20">
-      redirectURL{redirectURL}
       <div className="shadow appearance-none border rounded w-15 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
         <Link to="/cart">Back</Link>
       </div>
