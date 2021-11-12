@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import axios from 'axios'
 
 function UserDetails() {
-  const [name, setName] = useState('dishu')
+  const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [redirectURL, setRedirectURL] = useState('')
