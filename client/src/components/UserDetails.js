@@ -4,8 +4,8 @@ import axios from 'axios'
 
 function UserDetails() {
   const [name, setName] = useState('dishu')
-  const [phone, setPhone] = useState('+918660436070')
-  const [email, setEmail] = useState('dishuj15@gmail.com')
+  const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
   const [redirectURL, setRedirectURL] = useState('')
   const [isRedirect, setIsRedirect] = useState(false)
 
