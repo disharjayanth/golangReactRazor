@@ -4,12 +4,79 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/razorpay/razorpay-go"
 )
+
+//// go:embed client/build/index.html
+//// go:embed client/build/static/*
+// var reactFS embed.FS
+
+type hookedResponseWriter struct {
+	http.ResponseWriter
+	got404 bool
+}
+
+func (hrw *hookedResponseWriter) WriteHeader(status int) {
+	if status == http.StatusNotFound {
+		hrw.got404 = true
+	} else {
+		hrw.ResponseWriter.WriteHeader(status)
+	}
+}
+
+func (hrw *hookedResponseWriter) Write(p []byte) (int, error) {
+	if hrw.got404 {
+		return len(p), nil
+	}
+	return hrw.ResponseWriter.Write(p)
+}
+
+func intercept404(handler, on404 http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		hookedWriter := &hookedResponseWriter{ResponseWriter: rw}
+		handler.ServeHTTP(hookedWriter, r)
+
+		if hookedWriter.got404 {
+			on404.ServeHTTP(rw, r)
+		}
+	})
+}
+
+func serveFileContents(file string, files http.FileSystem) http.HandlerFunc {
+	return func(rw http.ResponseWriter, r *http.Request) {
+		if !strings.Contains(r.Header.Get("Accept"), "text/html") {
+			rw.WriteHeader(http.StatusNotFound)
+			fmt.Fprint(rw, "404 not found")
+
+			return
+		}
+
+		index, err := files.Open(file)
+		if err != nil {
+			rw.WriteHeader(http.StatusNotFound)
+			fmt.Fprintf(rw, "%s not found", file)
+
+			return
+		}
+
+		fi, err := index.Stat()
+		if err != nil {
+			rw.WriteHeader(http.StatusNotFound)
+			fmt.Fprintf(rw, "%s not found", file)
+
+			return
+		}
+
+		rw.Header().Set("Content-Type", "text/html; charset=utf-8")
+		http.ServeContent(rw, r, fi.Name(), fi.ModTime(), index)
+	}
+}
 
 func init() {
 	godotenv.Load()
@@ -58,6 +125,8 @@ func paymentHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(body["short_url"].(string)))
 }
 
+var frontend fs.FS = os.DirFS("client/build")
+
 func main() {
 	server := http.Server{}
 	if os.Getenv("ENV") == "DEV" {
@@ -70,7 +139,19 @@ func main() {
 		}
 	}
 
-	http.Handle("/", http.FileServer(http.Dir("client/build/")))
+	// distFS, err := fs.Sub(reactFS, "client/build")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	httpFS := http.FS(frontend)
+	fileServer := http.FileServer(httpFS)
+	serveIndex := serveFileContents("index.html", httpFS)
+
+	http.Handle("/", intercept404(fileServer, serveIndex))
+	// http.Handle("/", http.FileServer(http.Dir("client/build/")))
+	// http.Handle("/", http.FileServer(http.FS(distFS)))
+
 	http.HandleFunc("/api/payment", paymentHandler)
 
 	fmt.Println("server running @port 4000")
